@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>$DOODLE - Proof-of-Doodle AI Memecoin</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=Space+Grotesk:wght@500;700&display=swap');
+    
+    body {
+      font-family: 'Space Grotesk', sans-serif;
+      background: #0f172a;
+      color: #f8fafc;
+    }
+
+    .font-cartoon {
+      font-family: 'Fredoka', cursive;
+    }
+
+    .doodle-border {
+      border: 3px solid #000;
+      box-shadow: 5px 5px 0px #000;
+      transition: all 0.15s ease-in-out;
+    }
+
+    .doodle-border:hover {
+      transform: translate(-2px, -2px);
+      box-shadow: 7px 7px 0px #000;
+    }
+
+    .doodle-btn {
+      border: 3px solid #000;
+      box-shadow: 4px 4px 0px #000;
+      font-weight: 700;
+      transition: all 0.1s ease;
+    }
+
+    .doodle-btn:active {
+      transform: translate(2px, 2px);
+      box-shadow: 2px 2px 0px #000;
+    }
+
+    canvas {
+      touch-action: none;
+      cursor: crosshair;
+    }
+
+    .grid-bg {
+      background-size: 30px 30px;
+      background-image: 
+        linear-gradient(to right, rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+    }
+  </style>
+</head>
+<body class="grid-bg min-h-screen pb-20">
+
+  <!-- Navigation -->
+  <nav class="border-b-4 border-black bg-yellow-400 p-4 sticky top-0 z-40">
+    <div class="max-w-7xl mx-auto flex justify-between items-center">
+      <div class="flex items-center gap-3">
+        <div class="bg-black text-yellow-400 font-cartoon text-3xl px-3 py-1 rounded-lg font-bold -rotate-3">
+          $DOODLE
+        </div>
+        <span class="hidden md:inline font-bold text-black uppercase tracking-wider text-sm">Draw-To-Earn AI Ecosystem</span>
+      </div>
+      
+      <div class="flex items-center gap-4">
+        <button id="walletBtn" onclick="toggleWalletModal()" class="doodle-btn bg-cyan-400 text-black px-5 py-2 rounded-xl text-lg flex items-center gap-2">
+          <i class="fa-solid fa-wallet"></i>
+          <span id="walletBtnText">Connect Wallet</span>
+        </button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Live Stats Bar -->
+  <section class="bg-purple-600 border-b-4 border-black text-white py-3 px-4">
+    <div class="max-w-7xl mx-auto grid grid-cols-2 md:grid-cols-4 gap-4 text-center font-cartoon text-lg">
+      <div class="bg-purple-700/50 p-2 rounded-xl border-2 border-black">
+        <div class="text-xs text-purple-200 uppercase font-sans">Token Price</div>
+        <div id="tokenPrice" class="text-yellow-300 font-bold">$0.00421</div>
+      </div>
+      <div class="bg-purple-700/50 p-2 rounded-xl border-2 border-black">
+        <div class="text-xs text-purple-200 uppercase font-sans">Market Cap</div>
+        <div id="mcap" class="text-emerald-300 font-bold">$4,210,000</div>
+      </div>
+      <div class="bg-purple-700/50 p-2 rounded-xl border-2 border-black">
+        <div class="text-xs text-purple-200 uppercase font-sans">Tokens Burnt 🔥</div>
+        <div id="burntTokens" class="text-rose-300 font-bold">14,209,500 $DOODLE</div>
+      </div>
+      <div class="bg-purple-700/50 p-2 rounded-xl border-2 border-black">
+        <div class="text-xs text-purple-200 uppercase font-sans">Total Drawings</div>
+        <div id="totalDrawings" class="text-cyan-300 font-bold">89,412 Doodles</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Hero & Game Section -->
+  <main class="max-w-7xl mx-auto px-4 mt-8">
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+      
+      <!-- Narrative / Token Info Sidebar -->
+      <div class="lg:col-span-5 space-y-6">
+        <div class="bg-pink-500 text-black p-6 rounded-2xl doodle-border">
+          <h1 class="font-cartoon text-4xl md:text-5xl font-bold leading-none mb-3">
+            PROOF OF DOODLE IS HERE! ✏️🚀
+          </h1>
+          <p class="text-lg font-medium mb-4 text-pink-950">
+            Connect your wallet, draw the prompt in 20 seconds, and let our neural network AI guess your drawing.
+          </p>
+          <div class="bg-white/90 p-4 rounded-xl border-2 border-black space-y-2 text-sm font-bold">
+            <div class="flex items-center gap-2 text-emerald-700">
+              <i class="fa-solid fa-check-circle"></i>
+              <span>AI Guesses Right = Claim 100 $DOODLE Tokens</span>
+            </div>
+            <div class="flex items-center gap-2 text-rose-700">
+              <i class="fa-solid fa-times-circle"></i>
+              <span>AI Fails = Mint Failed Doodle as a Viral NFT</span>
+            </div>
+            <div class="flex items-center gap-2 text-purple-700">
+              <i class="fa-solid fa-fire"></i>
+              <span>Every doodle submitted burns 10 $DOODLE</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tokenomics Quick View -->
+        <div class="bg-emerald-400 text-black p-6 rounded-2xl doodle-border">
+          <h2 class="font-cartoon text-3xl font-bold mb-4">Tokenomics ($DOODLE)</h2>
+          <div class="space-y-3 font-bold text-sm">
+            <div class="flex justify-between bg-white/70 p-2 rounded-lg border border-black">
+              <span>Total Supply:</span>
+              <span>1,000,000,000 $DOODLE</span>
+            </div>
+            <div class="flex justify-between bg-white/70 p-2 rounded-lg border border-black">
+              <span>Game Reward Treasury:</span>
+              <span>20% (Locked in Contract)</span>
+            </div>
+            <div class="flex justify-between bg-white/70 p-2 rounded-lg border border-black">
+              <span>Public Liquidity Pool:</span>
+              <span>80% (Locked Forever)</span>
+            </div>
+            <div class="flex justify-between bg-white/70 p-2 rounded-lg border border-black">
+              <span>Tax / Fee:</span>
+              <span>0% Buy / 0% Sell</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Canvas Drawing Application -->
+      <div class="lg:col-span-7 bg-slate-800 p-6 rounded-3xl border-4 border-black shadow-2xl relative">
+        <div class="flex flex-col sm:flex-row justify-between items-center gap-4 mb-4">
+          <div>
+            <span class="text-slate-400 text-xs uppercase font-bold tracking-wider">Your Target Prompt</span>
+            <div id="targetPrompt" class="font-cartoon text-3xl text-yellow-400 font-bold uppercase tracking-wide">
+              ... Click Start ...
+            </div>
+          </div>
+          <div class="flex items-center gap-3">
+            <div class="bg-slate-900 border-2 border-slate-700 rounded-2xl px-4 py-2 text-center">
+              <div class="text-xs text-slate-400 uppercase">Timer</div>
+              <div id="timerDisplay" class="font-cartoon text-3xl text-cyan-400">20s</div>
+            </div>
+            <button id="startGameBtn" onclick="startNewGame()" class="doodle-btn bg-yellow-400 text-black px-6 py-3 rounded-2xl text-xl font-cartoon">
+              <i class="fa-solid fa-play mr-2"></i>START GAME
+            </button>
+          </div>
+        </div>
+
+        <!-- Canvas Container -->
+        <div class="relative bg-white rounded-2xl border-4 border-black overflow-hidden shadow-inner flex justify-center items-center">
+          <canvas id="doodleCanvas" width="450" height="350" class="w-full h-[350px] bg-white"></canvas>
+          
+          <!-- Game Start Overlay -->
+          <div id="canvasOverlay" class="absolute inset-0 bg-slate-950/80 backdrop-blur-sm flex flex-col justify-center items-center text-center p-6">
+            <i class="fa-solid fa-paint-brush text-5xl text-yellow-400 mb-4 animate-bounce"></i>
+            <h3 class="font-cartoon text-3xl text-white font-bold mb-2">Ready to Draw to Earn?</h3>
+            <p class="text-slate-300 max-w-sm text-sm mb-6">
+              Press Start Game, read the prompt, and sketch as fast as you can before the 20s timer runs out!
+            </p>
+            <button onclick="startNewGame()" class="doodle-btn bg-yellow-400 text-black px-8 py-3 rounded-2xl text-xl font-cartoon">
+              PLAY NOW
+            </button>
+          </div>
+        </div>
+
+        <!-- Canvas Tools Toolbar -->
+        <div class="mt-4 flex flex-wrap justify-between items-center gap-3 bg-slate-900 p-3 rounded-2xl border-2 border-slate-700">
+          <div class="flex items-center gap-2">
+            <span class="text-xs text-slate-400 uppercase font-bold">Colors:</span>
+            <button onclick="setColor('#000000')" class="w-8 h-8 rounded-full bg-black border-2 border-white hover:scale-110 transition"></button>
+            <button onclick="setColor('#ef4444')" class="w-8 h-8 rounded-full bg-red-500 border-2 border-white hover:scale-110 transition"></button>
+            <button onclick="setColor('#3b82f6')" class="w-8 h-8 rounded-full bg-blue-500 border-2 border-white hover:scale-110 transition"></button>
+            <button onclick="setColor('#10b981')" class="w-8 h-8 rounded-full bg-emerald-500 border-2 border-white hover:scale-110 transition"></button>
+            <button onclick="setColor('#f59e0b')" class="w-8 h-8 rounded-full bg-amber-500 border-2 border-white hover:scale-110 transition"></button>
+          </div>
+
+          <div class="flex items-center gap-2">
+            <span class="text-xs text-slate-400 uppercase font-bold">Size:</span>
+            <input type="range" id="brushSize" min="2" max="20" value="6" class="w-24 accent-yellow-400">
+          </div>
+
+          <div class="flex items-center gap-2">
+            <button onclick="clearCanvas()" class="px-3 py-1 bg-slate-700 hover:bg-slate-600 text-white rounded-lg text-xs font-bold border border-slate-500">
+              <i class="fa-solid fa-eraser mr-1"></i>Clear
+            </button>
+          </div>
+        </div>
+
+        <!-- Real-time AI Guessing Status -->
+        <div class="mt-4 bg-slate-900 border-2 border-slate-700 p-3 rounded-2xl flex items-center justify-between">
+          <div class="flex items-center gap-3">
+            <div class="w-3 h-3 rounded-full bg-emerald-400 animate-pulse"></div>
+            <span class="text-xs text-slate-400 font-bold uppercase">AI Neural Guess:</span>
+          </div>
+          <div id="aiGuessText" class="font-cartoon text-xl text-cyan-300">
+            "I'm waiting for your strokes..."
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </main>
+
+  <!-- Wall of Failed Doodles (Community NFT Gallery) -->
+  <section class="max-w-7xl mx-auto px-4 mt-16">
+    <div class="flex justify-between items-end mb-6">
+      <div>
+        <h2 class="font-cartoon text-4xl font-bold text-yellow-400">Wall of Absurdity (NFT Gallery)</h2>
+        <p class="text-slate-400 text-sm">Failed AI drawings minted directly by the community as viral NFTs.</p>
+      </div>
+      <span class="bg-pink-500 text-black px-3 py-1 rounded-full text-xs font-bold border-2 border-black">Live Mint Feed</span>
+    </div>
+
+    <div id="nftGallery" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
+      <!-- Dynamic Gallery Cards populated via JS -->
+    </div>
+  </section>
+
+  <!-- Wallet Modal -->
+  <div id="walletModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex justify-center items-center p-4">
+    <div class="bg-slate-900 border-4 border-black p-6 rounded-3xl max-w-md w-full doodle-border">
+      <div class="flex justify-between items-center mb-6">
+        <h3 class="font-cartoon text-2xl text-yellow-400 font-bold">Connect Web3 Wallet</h3>
+        <button onclick="toggleWalletModal()" class="text-slate-400 hover:text-white text-xl">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+      
+      <div class="space-y-3">
+        <button onclick="connectWallet('MetaMask')" class="w-full bg-slate-800 hover:bg-slate-700 p-4 rounded-2xl border-2 border-slate-700 flex items-center justify-between text-left transition">
+          <div class="flex items-center gap-3">
+            <i class="fa-solid fa-fox text-orange-500 text-2xl"></i>
+            <span class="font-bold text-white">MetaMask</span>
+          </div>
+          <span class="text-xs bg-slate-700 text-slate-300 px-2 py-1 rounded">Popular</span>
+        </button>
+
+        <button onclick="connectWallet('Phantom')" class="w-full bg-slate-800 hover:bg-slate-700 p-4 rounded-2xl border-2 border-slate-700 flex items-center justify-between text-left transition">
+          <div class="flex items-center gap-3">
+            <i class="fa-solid fa-ghost text-purple-400 text-2xl"></i>
+            <span class="font-bold text-white">Phantom</span>
+          </div>
+          <span class="text-xs bg-slate-700 text-slate-300 px-2 py-1 rounded">Solana</span>
+        </button>
+
+        <button onclick="connectWallet('Coinbase')" class="w-full bg-slate-800 hover:bg-slate-700 p-4 rounded-2xl border-2 border-slate-700 flex items-center justify-between text-left transition">
+          <div class="flex items-center gap-3">
+            <i class="fa-solid fa-wallet text-blue-500 text-2xl"></i>
+            <span class="font-bold text-white">Coinbase Wallet</span>
+          </div>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Result Modal (Success / Fail) -->
+  <div id="resultModal" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 hidden flex justify-center items-center p-4">
+    <div id="modalContent" class="bg-slate-900 border-4 border-black p-8 rounded-3xl max-w-md w-full text-center doodle-border relative">
+      <!-- Content injected by JS -->
+    </div>
+  </div>
+
+  <script>
+    // Project State
+    const PROMPTS = ["Rocket", "Cat", "House", "Pizza", "Doge", "Moon", "Car", "Banana", "Tree", "Guitar"];
+    const ABSURD_AI_ROASTS = [
+      "Is that a lawnmower or an alien ship?",
+      "My neural networks are crying looking at this.",
+      "A 2-year-old could draw a better version!",
+      "I guessed 'broken potato', but the answer was something else."
+    ];
+
+    let currentPrompt = "";
+    let gameTimer = null;
+    let timeLeft = 20;
+    let isDrawing = false;
+    let isGameActive = false;
+    let strokeCount = 0;
+    let walletConnected = false;
+    let userAddress = "";
+    let doodleBalance = 0;
+
+    const canvas = document.getElementById('doodleCanvas');
+    const ctx = canvas.getContext('2d');
+    let currentColor = '#000000';
+
+    // Canvas Event Listeners
+    canvas.addEventListener('mousedown', startDrawing);
+    canvas.addEventListener('mousemove', draw);
+    canvas.addEventListener('mouseup', stopDrawing);
+    canvas.addEventListener('mouseleave', stopDrawing);
+
+    // Touch Support
+    canvas.addEventListener('touchstart', (e) => { e.preventDefault(); startDrawing(e.touches[0]); });
+    canvas.addEventListener('touchmove', (e) => { e.preventDefault(); draw(e.touches[0]); });
+    canvas.addEventListener('touchend', stopDrawing);
+
+    function startDrawing(e) {
+      if (!isGameActive) return;
+      isDrawing = true;
+      strokeCount++;
+      const rect = canvas.getBoundingClientRect();
+      ctx.beginPath();
+      ctx.moveTo(e.clientX - rect.left, e.clientY - rect.top);
+    }
+
+    function draw(e) {
+      if (!isDrawing || !isGameActive) return;
+      const rect = canvas.getBoundingClientRect();
+      ctx.strokeStyle = currentColor;
+      ctx.lineWidth = document.getElementById('brushSize').value;
+      ctx.lineCap = 'round';
+      ctx.lineTo(e.clientX - rect.left, e.clientY - rect.top);
+      ctx.stroke();
+
+      simulateAIGuess();
+    }
+
+    function stopDrawing() {
+      isDrawing = false;
+    }
+
+    function setColor(color) {
+      currentColor = color;
+    }
+
+    function clearCanvas() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      document.getElementById('aiGuessText').innerText = '"I\'m waiting for your strokes..."';
+    }
+
+    // Game Logic
+    function startNewGame() {
+      if (!walletConnected) {
+        toggleWalletModal();
+        return;
+      }
+
+      currentPrompt = PROMPTS[Math.floor(Math.random() * PROMPTS.length)];
+      document.getElementById('targetPrompt').innerText = currentPrompt;
+      document.getElementById('canvasOverlay').classList.add('hidden');
+      
+      clearCanvas();
+      strokeCount = 0;
+      timeLeft = 20;
+      isGameActive = true;
+
+      document.getElementById('timerDisplay').innerText = `${timeLeft}s`;
+
+      if (gameTimer) clearInterval(gameTimer);
+
+      gameTimer = setInterval(() => {
+        timeLeft--;
+        document.getElementById('timerDisplay').innerText = `${timeLeft}s`;
+
+        if (timeLeft <= 0) {
+          endGame(false);
+        }
+      }, 1000);
+    }
+
+    function simulateAIGuess() {
+      if (strokeCount > 15 && Math.random() < 0.08) {
+        endGame(true);
+      } else if (strokeCount > 5) {
+        const guesses = ["Lawnmower", "Flying Saucer", "Spoon", "Triangle", currentPrompt];
+        const randomGuess = guesses[Math.floor(Math.random() * guesses.length)];
+        document.getElementById('aiGuessText').innerText = `"${randomGuess}?"`;
+      }
+    }
+
+    function endGame(success) {
+      clearInterval(gameTimer);
+      isGameActive = false;
+
+      const modal = document.getElementById('resultModal');
+      const content = document.getElementById('modalContent');
+      modal.classList.remove('hidden');
+
+      if (success) {
+        confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
+        doodleBalance += 100;
+
+        content.innerHTML = `
+          <div class="text-emerald-400 text-6xl mb-3"><i class="fa-solid fa-trophy"></i></div>
+          <h3 class="font-cartoon text-4xl text-yellow-400 font-bold mb-2">AI GUESSED IT!</h3>
+          <p class="text-slate-300 text-sm mb-4">
+            The AI successfully identified your <strong class="text-white">${currentPrompt}</strong> sketch!
+          </p>
+          <div class="bg-emerald-500/20 border-2 border-emerald-500 p-4 rounded-2xl mb-6 text-emerald-300 font-bold">
+            +100 $DOODLE Tokens Claimed!
+          </div>
+          <button onclick="closeResultModal()" class="doodle-btn bg-yellow-400 text-black w-full py-3 rounded-2xl text-xl font-cartoon">
+            PLAY AGAIN
+          </button>
+        `;
+      } else {
+        const roast = ABSURD_AI_ROASTS[Math.floor(Math.random() * ABSURD_AI_ROASTS.length)];
+        const dataUrl = canvas.toDataURL();
+
+        content.innerHTML = `
+          <div class="text-rose-500 text-6xl mb-3"><i class="fa-solid fa-robot"></i></div>
+          <h3 class="font-cartoon text-4xl text-rose-400 font-bold mb-2">AI WAS CONFUSED!</h3>
+          <p class="text-slate-300 text-sm mb-2">"${roast}"</p>
+          <div class="my-4 border-2 border-black rounded-xl overflow-hidden bg-white p-2">
+            <img src="${dataUrl}" class="h-32 mx-auto object-contain" />
+          </div>
+          <button onclick="mintDoodleNFT('${dataUrl}')" class="doodle-btn bg-pink-500 text-black w-full py-3 rounded-2xl text-lg font-cartoon mb-2">
+            MINT AS FAILED NFT (0.01 ETH)
+          </button>
+          <button onclick="closeResultModal()" class="text-slate-400 text-sm underline mt-2 block mx-auto">
+            Try Again
+          </button>
+        `;
+      }
+    }
+
+    function closeResultModal() {
+      document.getElementById('resultModal').classList.add('hidden');
+      document.getElementById('canvasOverlay').classList.remove('hidden');
+    }
+
+    function mintDoodleNFT(imageData) {
+      const gallery = document.getElementById('nftGallery');
+      const card = document.createElement('div');
+      card.className = "bg-slate-800 border-2 border-black p-2 rounded-xl doodle-border";
+      card.innerHTML = `
+        <img src="${imageData}" class="w-full h-24 object-contain bg-white rounded-lg mb-2" />
+        <div class="text-xs text-yellow-400 font-bold font-cartoon">Failed ${currentPrompt}</div>
+        <div class="text-[10px] text-slate-400">Minted by ${userAddress.substring(0,6)}...</div>
+      `;
+      gallery.prepend(card);
+      closeResultModal();
+      alert("🎉 Successfully minted your Failed Doodle NFT to the public wall!");
+    }
+
+    // Wallet Simulation
+    function toggleWalletModal() {
+      document.getElementById('walletModal').classList.toggle('hidden');
+    }
+
+    function connectWallet(provider) {
+      walletConnected = true;
+      userAddress = "0x" + Array.from({length: 40}, () => Math.floor(Math.random()*16).toString(16)).join('');
+      document.getElementById('walletBtnText').innerText = `${userAddress.substring(0, 6)}...${userAddress.substring(38)}`;
+      document.getElementById('walletBtn').classList.replace('bg-cyan-400', 'bg-emerald-400');
+      toggleWalletModal();
+    }
+
+    // Initial Sample Gallery Population
+    function loadSampleGallery() {
+      const gallery = document.getElementById('nftGallery');
+      const sampleItems = ["Rocket", "Doge", "House", "Cat", "Car", "Pizza"];
+      
+      sampleItems.forEach((item) => {
+        const card = document.createElement('div');
+        card.className = "bg-slate-800 border-2 border-black p-2 rounded-xl doodle-border";
+        card.innerHTML = `
+          <div class="w-full h-24 bg-white rounded-lg mb-2 flex items-center justify-center font-cartoon text-slate-400 text-xs">
+            [ ${item} Sketch ]
+          </div>
+          <div class="text-xs text-yellow-400 font-bold font-cartoon">Failed ${item}</div>
+          <div class="text-[10px] text-slate-400">Minted #4290</div>
+        `;
+        gallery.appendChild(card);
+      });
+    }
+
+    loadSampleGallery();
+  </script>
+</body>
+</html>
